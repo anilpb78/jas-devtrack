@@ -632,11 +632,11 @@ body { font-family: var(--font-body); background: var(--navy); color: var(--text
             <input type="text" id="f_gitlab_repo" placeholder="anilpb78/jas-query-tracker">
           </div>
           <div class="form-group">
-            <label>GitHub Account <span style="font-size:9px;color:var(--text-muted);font-weight:400;">(archived)</span></label>
+            <label>GitHub Account</label>
             <input type="text" id="f_github_account" placeholder="e.g. anilpb78">
           </div>
           <div class="form-group">
-            <label>GitHub Repo <span style="font-size:9px;color:var(--text-muted);font-weight:400;">(archived)</span></label>
+            <label>GitHub Repo</label>
             <input type="text" id="f_github_repo" placeholder="anilpb78/jas-query-tracker">
           </div>
           <div class="form-group">
@@ -1473,7 +1473,7 @@ function renderExpandPanel(a) {
       <div class="details-grid">
         ${a.live_url ? `<div class="detail-item"><label>Live URL</label><div class="detail-val copy-val" onclick="copyText(event,'${esc(a.live_url)}','URL copied')"><a href="${esc(a.live_url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(a.live_url)}</a> &#128203;</div></div>` : ''}
         ${a.gitlab_repo ? `<div class="detail-item"><label>GitLab</label><div class="detail-val"><a href="https://gitlab.com/${esc(a.gitlab_repo)}" target="_blank" rel="noopener noreferrer">&#128279; ${esc(a.gitlab_repo)}</a></div></div>` : ''}
-        ${a.github_repo ? `<div class="detail-item"><label>GitHub <span style="font-size:9px;opacity:0.6;">(archived)</span></label><div class="detail-val"><a href="https://github.com/${esc(a.github_repo)}" target="_blank" rel="noopener noreferrer">&#128279; ${esc(a.github_repo)}</a></div></div>` : ''}
+        ${a.github_repo ? `<div class="detail-item"><label>GitHub</label><div class="detail-val"><a href="https://github.com/${esc(a.github_repo)}" target="_blank" rel="noopener noreferrer">&#128279; ${esc(a.github_repo)}</a></div></div>` : ''}
         ${a.file_name ? `<div class="detail-item"><label>File Name</label><div class="detail-val copy-val" onclick="copyText(event,'${esc(a.file_name)}','Filename copied')">${esc(a.file_name)} &#128203;</div></div>` : ''}
         ${a.html_stored_url ? `<div class="detail-item"><label>Stored At</label><div class="detail-val"><a href="${esc(a.html_stored_url)}" target="_blank" rel="noopener noreferrer">&#128279; View File</a></div></div>` : ''}
         ${a.access_level ? `<div class="detail-item"><label>Access</label><div class="detail-val">&#128274; ${esc(a.access_level)}</div></div>` : ''}
@@ -1525,7 +1525,7 @@ function renderExpandPanel(a) {
         ${a.app_password ? `<div class="auth-row"><span class="auth-icon">&#128274;</span><span class="auth-label">App Password</span><span class="auth-val">&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;</span><span class="auth-copy" onclick="copyText(event,'${esc(a.app_password)}','Password copied!')">&#128203; Copy</span></div>` : ''}
         ${(() => { const sp = supabaseProjects.find(s => s.id === a.supabase_project_id); return sp ? `<div class="auth-row"><span class="auth-icon">&#9889;</span><span class="auth-label">Supabase</span><span class="auth-val">${esc(sp.name)}${sp.region?' ('+esc(sp.region)+')':''}</span></div>` : ''; })()}
         ${a.gitlab_account ? `<div class="auth-row"><span class="auth-icon">&#128045;</span><span class="auth-label">GitLab Acct</span><span class="auth-val">${esc(a.gitlab_account)}</span></div>` : ''}
-        ${a.github_account ? `<div class="auth-row"><span class="auth-icon">&#128025;</span><span class="auth-label">GitHub Acct <span style="font-size:9px;opacity:0.6;">(archived)</span></span><span class="auth-val">${esc(a.github_account)}</span></div>` : ''}
+        ${a.github_account ? `<div class="auth-row"><span class="auth-icon">&#128025;</span><span class="auth-label">GitHub Acct</span><span class="auth-val">${esc(a.github_account)}</span></div>` : ''}
         ${a.vercel_account ? `<div class="auth-row"><span class="auth-icon">&#9651;</span><span class="auth-label">Vercel Acct</span><span class="auth-val">${esc(a.vercel_account)}</span></div>` : ''}
         ${a.claude_project ? `<div class="auth-row"><span class="auth-icon">&#129302;</span><span class="auth-label">Claude Project</span><span class="auth-val">${esc(a.claude_project)}</span></div>` : ''}
         ${a.claude_url ? `<div class="auth-row"><span class="auth-icon">&#128279;</span><span class="auth-label">Claude Chat</span><span class="auth-val"><a href="${esc(a.claude_url)}" target="_blank" rel="noopener noreferrer">&#128279; Open Conversation</a></span></div>` : ''}
@@ -1938,7 +1938,7 @@ function exportMarkdown() {
       if (a.live_url) md += `- **URL:** ${a.live_url}\n`;
       if (a.file_name) md += `- **File:** ${a.file_name}\n`;
       if (a.gitlab_repo) md += `- **GitLab:** https://gitlab.com/${a.gitlab_repo}\n`;
-      if (a.github_repo) md += `- **GitHub (archived):** https://github.com/${a.github_repo}\n`;
+      if (a.github_repo) md += `- **GitHub:** https://github.com/${a.github_repo}\n`;
       if (a.access_level) md += `- **Access:** ${a.access_level}\n`;
       if (a.tech_stack?.length) md += `- **Tech:** ${a.tech_stack.join(', ')}\n`;
       if (a.dependencies?.length) md += `- **Dependencies:** ${a.dependencies.join(', ')}\n`;
