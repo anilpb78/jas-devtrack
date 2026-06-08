@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEVTRACK — JAS Project Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0C0E1A;
+  --navy2: #0F1120;
+  --navy3: #131629;
+  --navy4: #1A1D30;
+  --navy5: #242840;
+  --navy6: #2D3158;
+  --violet: #7C5CFC;
+  --violet-light: #A78BFA;
+  --violet-dim: #7C5CFC22;
+  --violet-border: #7C5CFC44;
+  --amber: #F59E0B;
+  --amber-dim: #F59E0B22;
+  --green: #10B981;
+  --green-dim: #10B98122;
+  --red: #EF4444;
+  --red-dim: #EF444422;
+  --grey: #64748B;
+  --grey-dim: #64748B22;
+  --text-primary: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted: #4A5580;
+  --text-url: #7B8FC0;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --radius: 10px;
+  --transition: 0.2s ease;
+}
+[data-theme="light"] {
+  --navy: #F8FAFC;
+  --navy2: #FFFFFF;
+  --navy3: #F1F5F9;
+  --navy4: #E2E8F0;
+  --navy5: #CBD5E1;
+  --navy6: #94A3B8;
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --text-url: #3B82F6;
+  --violet-dim: #7C5CFC12;
+  --violet-border: #7C5CFC30;
+  --amber-dim: #F59E0B15;
+  --green-dim: #10B98115;
+  --red-dim: #EF444415;
+  --grey-dim: #64748B15;
+}
+[data-theme="light"] .stat-num.violet {
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: var(--violet);
+  color: var(--violet);
+}
+[data-theme="light"] .topbar {
+  border-bottom: 1px solid var(--navy4);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .app-row { box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+[data-theme="light"] .modal { box-shadow: 0 8px 40px rgba(0,0,0,0.12); }
+[data-theme="light"] .badge-live { background: #DCFCE7; color: #16A34A; border-color: #86EFAC; }
+[data-theme="light"] .badge-local { background: #FEF9C3; color: #CA8A04; border-color: #FDE047; }
+[data-theme="light"] .badge-wip { background: #EDE9FE; color: #7C3AED; border-color: #C4B5FD; }
+[data-theme="light"] .badge-archived { background: #F1F5F9; color: #64748B; border-color: #CBD5E1; }
+[data-theme="light"] .recent-bar { background: var(--navy3); border-bottom: 1px solid var(--navy4); }
+[data-theme="light"] .recent-item { background: var(--navy4); color: var(--text-secondary); }
+[data-theme="light"] .tb-icon-btn { background: var(--navy2); border-color: var(--navy4); color: var(--text-secondary); }
+[data-theme="light"] .tb-icon-btn:hover { border-color: var(--violet); color: var(--violet); background: var(--violet-dim); }
+[data-theme="light"] .project-title { color: var(--text-primary); }
+[data-theme="light"] .chip { background: var(--navy3); color: var(--text-secondary); border-color: var(--navy4); }
+[data-theme="light"] .chip.violet { background: #EDE9FE; color: #7C3AED; border-color: #C4B5FD; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font-body); background: var(--navy); color: var(--text-primary); min-height: 100vh; font-size: 14px; transition: background var(--transition), color var(--transition); }
+
+/* ── LOGIN ── */
+#loginScreen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 30% 40%, #1a1040 0%, #0C0E1A 60%);
+}
+.login-box {
+  background: var(--navy2); border: 1px solid var(--navy4); border-radius: 16px;
+  padding: 40px 36px; width: 360px; text-align: center;
+  box-shadow: 0 24px 80px rgba(124,92,252,0.15);
+}
+.login-logo {
+  font-family: var(--font-display); font-size: 28px; font-weight: 800;
+  background: linear-gradient(90deg, var(--violet), var(--violet-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 2px; margin-bottom: 6px;
+}
+.login-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 28px; letter-spacing: 1px; }
+.login-field { margin-bottom: 14px; text-align: left; }
+.login-field label { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 6px; }
+.login-field input {
+  width: 100%; padding: 11px 14px; background: var(--navy3); border: 1px solid var(--navy5);
+  border-radius: 8px; color: var(--text-primary); font-family: var(--font-body); font-size: 14px;
+  outline: none; transition: border-color var(--transition);
+}
+.login-field input:focus { border-color: var(--violet); }
+.login-btn {
+  width: 100%; padding: 12px; background: linear-gradient(135deg, var(--violet), #9B7CFF);
+  border: none; border-radius: 8px; color: white; font-family: var(--font-display);
+  font-size: 14px; font-weight: 700; letter-spacing: 1px; cursor: pointer; margin-top: 8px;
+  transition: opacity var(--transition);
+}
+.login-btn:hover { opacity: 0.9; }
+.login-err { font-size: 12px; color: var(--red); margin-top: 10px; min-height: 18px; font-weight: 600; }
+.login-hint { font-size: 11px; color: var(--text-muted); margin-top: 16px; line-height: 1.6; }
+
+/* ── APP ── */
+#app { display: none; flex-direction: column; min-height: 100vh; }
+
+/* TOPBAR */
+.topbar {
+  background: var(--navy2); border-bottom: 1px solid var(--navy4);
+  padding: 0 20px; height: 54px; display: flex; align-items: center;
+  justify-content: space-between; position: sticky; top: 0; z-index: 200;
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.topbar-logo {
+  font-family: var(--font-display); font-size: 18px; font-weight: 800;
+  background: linear-gradient(90deg, var(--violet), var(--violet-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 2px;
+}
+.topbar-sep { color: var(--navy5); font-size: 18px; }
+.project-sel {
+  background: var(--navy3); border: 1px solid var(--navy5); color: var(--text-primary);
+  font-family: var(--font-body); font-size: 13px; font-weight: 600; padding: 6px 12px;
+  border-radius: 20px; cursor: pointer; outline: none; transition: border-color var(--transition);
+}
+.project-sel:focus { border-color: var(--violet); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.tb-icon-btn {
+  background: var(--navy3); border: 1px solid var(--navy5); color: var(--text-secondary);
+  font-size: 13px; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+  font-family: var(--font-body); font-weight: 600; transition: all var(--transition);
+  white-space: nowrap;
+}
+.tb-icon-btn:hover { border-color: var(--violet); color: var(--violet-light); }
+.tb-icon-btn.active { background: var(--violet-dim); border-color: var(--violet-border); color: var(--violet-light); }
+.tb-add-btn {
+  background: linear-gradient(135deg, var(--violet), #9B7CFF); border: none;
+  color: white; font-family: var(--font-display); font-size: 12px; font-weight: 700;
+  padding: 7px 16px; border-radius: 8px; cursor: pointer; letter-spacing: 0.5px;
+  transition: opacity var(--transition);
+}
+.tb-add-btn:hover { opacity: 0.9; }
+
+/* TOOLBAR */
+.toolbar {
+  background: var(--navy2); border-bottom: 1px solid var(--navy4);
+  padding: 10px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.tb-search {
+  padding: 8px 14px; background: var(--navy3); border: 1px solid var(--navy5);
+  border-radius: 8px; color: var(--text-primary); font-family: var(--font-body);
+  font-size: 13px; width: 240px; outline: none; transition: border-color var(--transition);
+}
+.tb-search:focus { border-color: var(--violet); }
+.tb-select {
+  padding: 8px 12px; background: var(--navy3); border: 1px solid var(--navy5);
+  border-radius: 8px; color: var(--text-secondary); font-family: var(--font-body);
+  font-size: 13px; outline: none; cursor: pointer;
+}
+.tb-select:focus { border-color: var(--violet); }
+.tb-divider { width: 1px; height: 24px; background: var(--navy5); }
+.tb-right { margin-left: auto; display: flex; gap: 8px; }
+
+/* RECENT ACTIVITY BAR */
+.recent-bar {
+  background: var(--navy3); border-bottom: 1px solid var(--navy4);
+  padding: 7px 20px; display: flex; align-items: center; gap: 12px; overflow-x: auto;
+}
+.recent-label { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; }
+.recent-items { display: flex; gap: 8px; }
+.recent-item {
+  font-size: 11px; color: var(--text-secondary); background: var(--navy4);
+  padding: 3px 10px; border-radius: 20px; white-space: nowrap; cursor: pointer;
+  transition: all var(--transition);
+}
+.recent-item:hover { background: var(--violet-dim); color: var(--violet-light); }
+.recent-item .ri-dot { color: var(--violet-light); margin-right: 4px; }
+
+/* MAIN CONTENT */
+.main { padding: 20px; flex: 1; }
+
+/* STATS */
+.stats-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat-card {
+  background: var(--navy2); border: 1px solid var(--navy4); border-radius: var(--radius);
+  padding: 14px 20px; flex: 1; min-width: 100px;
+}
+.stat-num { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: var(--text-primary); }
+.stat-num.violet { background: linear-gradient(90deg, var(--violet), var(--violet-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-num.green { color: var(--green); }
+.stat-num.amber { color: var(--amber); }
+.stat-lbl { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; font-weight: 600; }
+
+/* PROJECT SECTION */
+.project-section { margin-bottom: 32px; }
+.project-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--navy4);
+}
+.project-banner-left { display: flex; align-items: center; gap: 12px; }
+.project-color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.project-title { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--text-primary); }
+.project-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.project-banner-right { display: flex; gap: 8px; }
+.proj-edit-btn {
+  background: none; border: 1px solid var(--navy5); color: var(--text-muted);
+  font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  font-family: var(--font-body); transition: all var(--transition);
+}
+.proj-edit-btn:hover { border-color: var(--violet); color: var(--violet-light); }
+
+/* APP ROWS */
+.apps-list { display: flex; flex-direction: column; gap: 8px; }
+
+/* COMPACT ROW */
+.app-row {
+  background: var(--navy2); border: 1px solid var(--navy4);
+  border-radius: var(--radius); overflow: hidden;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.app-row:hover { border-color: var(--navy5); }
+.app-row.pinned { border-color: var(--violet-border); }
+
+.app-row-main {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer;
+}
+.row-status-bar { width: 3px; height: 36px; border-radius: 2px; flex-shrink: 0; }
+.row-info { flex: 1; min-width: 0; }
+.row-name-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.row-name { font-size: 14px; font-weight: 700; color: var(--text-primary); font-family: var(--font-display); }
+.row-pin { font-size: 12px; color: var(--violet-light); }
+.row-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+.badge {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.8px; padding: 2px 8px;
+  border-radius: 20px; text-transform: uppercase; white-space: nowrap;
+}
+.badge-live { background: #10B98118; color: var(--green); border: 1px solid #10B98133; }
+.badge-local { background: #F59E0B18; color: var(--amber); border: 1px solid #F59E0B33; }
+.badge-wip { background: var(--violet-dim); color: var(--violet-light); border: 1px solid var(--violet-border); }
+.badge-archived { background: var(--grey-dim); color: var(--grey); border: 1px solid #64748B33; }
+.badge-prod { background: #10B98108; color: #10B98188; border: 1px solid #10B98122; font-size: 8px; }
+.badge-test { background: #F59E0B08; color: #F59E0B88; border: 1px solid #F59E0B22; font-size: 8px; }
+.badge-retired { background: var(--grey-dim); color: #64748B88; border: 1px solid #64748B22; font-size: 8px; }
+.badge-overdue { background: var(--red-dim); color: var(--red); border: 1px solid #EF444433; }
+.row-meta { display: flex; align-items: center; gap: 10px; margin-top: 3px; flex-wrap: wrap; }
+.row-url { font-size: 11px; color: var(--text-url); font-weight: 500; }
+.row-file { font-size: 11px; color: var(--text-muted); }
+.row-ver { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+.row-date { font-size: 10px; color: var(--navy6); }
+.row-pending-chip {
+  font-size: 10px; background: var(--amber-dim); color: var(--amber);
+  border: 1px solid #F59E0B33; padding: 1px 7px; border-radius: 10px; font-weight: 700;
+}
+.row-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.action-btn {
+  background: var(--navy3); border: 1px solid var(--navy5); color: var(--text-muted);
+  font-size: 11px; padding: 5px 9px; border-radius: 6px; cursor: pointer;
+  font-family: var(--font-body); transition: all var(--transition); white-space: nowrap;
+}
+.action-btn:hover { border-color: var(--violet); color: var(--violet-light); background: var(--violet-dim); }
+.action-btn.open { background: var(--violet-dim); border-color: var(--violet-border); color: var(--violet-light); font-weight: 700; }
+.action-btn.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+.row-expand-icon { color: var(--text-muted); font-size: 10px; transition: transform var(--transition); }
+.app-row.expanded .row-expand-icon { transform: rotate(180deg); }
+
+/* EXPANDED PANEL */
+.app-expand-panel { display: none; border-top: 1px solid var(--navy4); }
+.app-row.expanded .app-expand-panel { display: block; }
+.expand-tabs { display: flex; border-bottom: 1px solid var(--navy4); }
+.expand-tab {
+  padding: 9px 16px; font-size: 12px; font-weight: 600; color: var(--text-muted);
+  cursor: pointer; border-bottom: 2px solid transparent; transition: all var(--transition);
+  font-family: var(--font-body);
+}
+.expand-tab:hover { color: var(--text-secondary); }
+.expand-tab.active { color: var(--violet-light); border-bottom-color: var(--violet); }
+.expand-content { padding: 16px; }
+.expand-pane { display: none; }
+.expand-pane.active { display: block; }
+
+/* DETAILS GRID */
+.details-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.detail-item label { font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.detail-item .detail-val { font-size: 13px; color: var(--text-secondary); font-weight: 500; word-break: break-all; }
+.detail-item .detail-val a { color: var(--violet-light); text-decoration: none; }
+.detail-item .detail-val a:hover { text-decoration: underline; }
+.detail-val.copy-val { cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.detail-val.copy-val:hover { color: var(--violet-light); }
+.chips-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.chip {
+  font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 6px;
+  background: var(--navy4); color: var(--text-secondary); border: 1px solid var(--navy5);
+}
+.chip.violet { background: var(--violet-dim); color: var(--violet-light); border-color: var(--violet-border); }
+
+/* PENDING */
+.pending-list { display: flex; flex-direction: column; gap: 6px; }
+.pending-item { display: flex; align-items: center; gap: 10px; }
+.pending-cb { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--navy5); background: var(--navy3); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all var(--transition); }
+.pending-cb.done { background: var(--green); border-color: var(--green); }
+.pending-cb.done::after { content: '&#10003;'; color: white; font-size: 10px; }
+.pending-text { font-size: 13px; color: var(--text-secondary); flex: 1; }
+.pending-text.done { text-decoration: line-through; color: var(--text-muted); }
+.pending-del { color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0 4px; }
+.pending-del:hover { color: var(--red); }
+.add-pending-row { display: flex; gap: 8px; margin-top: 10px; }
+.add-pending-input {
+  flex: 1; padding: 8px 12px; background: var(--navy3); border: 1px solid var(--navy5);
+  border-radius: 7px; color: var(--text-primary); font-family: var(--font-body); font-size: 13px; outline: none;
+}
+.add-pending-input:focus { border-color: var(--violet); }
+.add-btn {
+  padding: 8px 14px; background: var(--violet-dim); border: 1px solid var(--violet-border);
+  color: var(--violet-light); border-radius: 7px; cursor: pointer; font-family: var(--font-body);
+  font-size: 12px; font-weight: 700; transition: all var(--transition);
+}
+.add-btn:hover { background: var(--violet); color: white; }
+
+/* CHANGELOG */
+.changelog-list { display: flex; flex-direction: column; gap: 8px; }
+.cl-item { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--navy4); }
+.cl-item:last-child { border-bottom: none; }
+.cl-ver { font-size: 11px; font-weight: 700; color: var(--violet-light); background: var(--violet-dim); padding: 2px 8px; border-radius: 5px; white-space: nowrap; font-family: var(--font-display); }
+.cl-date { font-size: 11px; color: var(--text-muted); white-space: nowrap; margin-top: 3px; width: 80px; flex-shrink: 0; }
+.cl-note { font-size: 13px; color: var(--text-secondary); flex: 1; }
+.cl-del { color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0 4px; }
+.cl-del:hover { color: var(--red); }
+.add-cl-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.add-cl-input {
+  flex: 1; min-width: 120px; padding: 8px 12px; background: var(--navy3); border: 1px solid var(--navy5);
+  border-radius: 7px; color: var(--text-primary); font-family: var(--font-body); font-size: 13px; outline: none;
+}
+.add-cl-input:focus { border-color: var(--violet); }
+.add-cl-ver { width: 80px; }
+
+/* AUTH INFO */
+.auth-info-box { background: var(--navy3); border: 1px solid var(--navy5); border-radius: 8px; padding: 14px 16px; }
+.auth-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.auth-row:last-child { margin-bottom: 0; }
+.auth-icon { font-size: 16px; width: 24px; text-align: center; }
+.auth-label { font-size: 11px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; width: 100px; flex-shrink: 0; }
+.auth-val { font-size: 13px; color: var(--text-secondary); font-weight: 500; flex: 1; }
+.auth-copy { font-size: 11px; color: var(--text-muted); cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: all var(--transition); }
+.auth-copy:hover { color: var(--violet-light); background: var(--violet-dim); }
+
+/* ── MODALS ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000;
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--navy2); border: 1px solid var(--navy4); border-radius: 14px;
+  width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+}
+.modal-wide { max-width: 760px; }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--navy4);
+}
+.modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: var(--text-primary); }
+.modal-close {
+  background: none; border: none; color: var(--text-muted); font-size: 20px;
+  cursor: pointer; padding: 2px 8px; border-radius: 6px; transition: all var(--transition);
+}
+.modal-close:hover { color: var(--red); background: var(--red-dim); }
+.modal-body { padding: 22px; }
+.modal-footer {
+  padding: 16px 22px; border-top: 1px solid var(--navy4);
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid.full { grid-template-columns: 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.span2 { grid-column: span 2; }
+.form-group label { font-size: 11px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
+.form-group input, .form-group select, .form-group textarea {
+  padding: 9px 12px; background: var(--navy3); border: 1px solid var(--navy5);
+  border-radius: 8px; color: var(--text-primary); font-family: var(--font-body);
+  font-size: 13px; outline: none; transition: border-color var(--transition);
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--violet); }
+.form-group textarea { resize: vertical; min-height: 70px; }
+.form-section { margin-bottom: 18px; }
+.form-section-title { font-size: 11px; font-weight: 700; color: var(--violet-light); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--navy4); display: flex; align-items: center; justify-content: space-between; }
+.tag-input-row { display: flex; gap: 8px; }
+.tag-input-row input { flex: 1; }
+.tags-display { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.tag-chip { background: var(--violet-dim); border: 1px solid var(--violet-border); color: var(--violet-light); font-size: 11px; padding: 3px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+.tag-chip .del { cursor: pointer; color: var(--violet-light); opacity: 0.7; }
+.tag-chip .del:hover { opacity: 1; }
+
+/* MODAL BUTTONS */
+.btn { padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; font-family: var(--font-body); cursor: pointer; border: none; transition: all var(--transition); }
+.btn-primary { background: linear-gradient(135deg, var(--violet), #9B7CFF); color: white; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary { background: var(--navy3); color: var(--text-secondary); border: 1px solid var(--navy5); }
+.btn-secondary:hover { border-color: var(--navy6); }
+.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid #EF444433; }
+.btn-danger:hover { background: var(--red); color: white; }
+
+/* EXPORT MODAL */
+.export-options { display: flex; flex-direction: column; gap: 10px; }
+.export-opt {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  background: var(--navy3); border: 1px solid var(--navy5); border-radius: 10px;
+  cursor: pointer; transition: all var(--transition);
+}
+.export-opt:hover { border-color: var(--violet); background: var(--violet-dim); }
+.export-icon { font-size: 22px; width: 36px; text-align: center; }
+.export-info .export-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.export-info .export-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  background: var(--navy3); border: 1px solid var(--violet-border); color: var(--text-primary);
+  padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+  box-shadow: 0 8px 32px rgba(124,92,252,0.2); opacity: 0; transform: translateY(10px);
+  transition: all 0.3s ease; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+.empty-state .es-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state .es-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.empty-state .es-sub { font-size: 13px; }
+
+/* EXPANDED CARD VIEW */
+.app-card {
+  background: var(--navy2); border: 1px solid var(--navy4); border-radius: var(--radius);
+  overflow: hidden; transition: border-color var(--transition);
+}
+.app-card:hover { border-color: var(--navy5); }
+.app-card.pinned { border-color: var(--violet-border); }
+.apps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; }
+
+/* DRAG HANDLE */
+.drag-handle {
+  color: var(--navy6); font-size: 14px; cursor: grab; padding: 0 6px;
+  flex-shrink: 0; letter-spacing: -2px; user-select: none;
+  transition: color var(--transition);
+}
+.drag-handle:hover { color: var(--violet-light); }
+.app-row.drag-over { border-color: var(--violet); background: var(--violet-dim); }
+.app-row.dragging { opacity: 0.4; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--navy5); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--navy6); }
+
+/* NO RESULTS */
+.no-results { padding: 32px; text-align: center; color: var(--text-muted); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">DEVTRACK</div>
+    <div class="login-sub">PROJECT MANAGER · JAS TOURS</div>
+    <div class="login-field">
+      <label>PIN</label>
+      <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="6" onkeydown="if(event.key==='Enter')document.getElementById('otpInput').focus()">
+    </div>
+    <div class="login-field">
+      <label>Authenticator Code</label>
+      <input type="text" id="otpInput" placeholder="6-digit code" maxlength="6" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">LOGIN</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-hint">Open Google Authenticator &#8594; JAS Tours<br>Enter 6-digit code before it expires</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">DEVTRACK</div>
+      <span class="topbar-sep">|</span>
+      <select class="project-sel" id="projectSel" onchange="onProjectChange()">
+        <option value="all">&#128197; All Projects</option>
+      </select>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-icon-btn" id="viewToggleBtn" onclick="toggleView()" title="Toggle compact/expanded">&#9783; Compact</button>
+      <button class="tb-icon-btn" id="themeBtn" onclick="toggleTheme()">&#9788; Light</button>
+      <button class="tb-icon-btn" onclick="openExportModal()">&#8679; Export</button>
+      <button class="tb-icon-btn" onclick="openManageProjectsModal()">&#9881; Claude Projects</button>
+      <button class="tb-add-btn" onclick="openAddAppModal()">+ Add App</button>
+      <button class="tb-icon-btn" onclick="doLock()">&#128274; Lock</button>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <input class="tb-search" id="searchInput" placeholder="&#128269; Search apps, URLs, files, notes..." oninput="applyFilters()" onkeydown="if(event.key==='Escape')this.value=''&&applyFilters()">
+    <select class="tb-select" id="filterStatus" onchange="applyFilters()">
+      <option value="">All Status</option>
+      <option value="Live">Live</option>
+      <option value="Local">Local</option>
+      <option value="WIP">WIP</option>
+      <option value="Archived">Archived</option>
+    </select>
+    <select class="tb-select" id="filterEnv" onchange="applyFilters()">
+      <option value="">All Environments</option>
+      <option value="Production">Production</option>
+      <option value="Testing">Testing</option>
+      <option value="Retired">Retired</option>
+    </select>
+    <select class="tb-select" id="sortBy" onchange="applyFilters()">
+      <option value="manual">Sort: Manual Order</option>
+      <option value="name">Sort: Name</option>
+      <option value="updated">Sort: Last Updated</option>
+      <option value="group">Group by Status</option>
+    </select>
+    <div class="tb-divider"></div>
+    <div class="tb-right">
+      <span id="appCount" style="font-size:12px;color:var(--text-muted);font-weight:600;"></span>
+    </div>
+  </div>
+
+  <!-- RECENT ACTIVITY -->
+  <div class="recent-bar" id="recentBar">
+    <span class="recent-label">Recent</span>
+    <div class="recent-items" id="recentItems"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainContent"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ADD/EDIT APP MODAL -->
+<div class="modal-overlay" id="appModal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div class="modal-title" id="appModalTitle">Add App</div>
+      <button class="modal-close" onclick="closeModal('appModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <!-- SECTION 1: BASIC -->
+      <div class="form-section">
+        <div class="form-section-title">Basic Info</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>App Name *</label>
+            <input type="text" id="f_app_name" placeholder="e.g. Query Tracker">
+          </div>
+          <div class="form-group">
+            <label>Project *</label>
+            <select id="f_project_id"></select>
+          </div>
+          <div class="form-group">
+            <label>Version</label>
+            <input type="text" id="f_version" placeholder="v1.0">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="f_status">
+              <option value="WIP">WIP</option>
+              <option value="Live">Live</option>
+              <option value="Local">Local</option>
+              <option value="Archived">Archived</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Environment</label>
+            <select id="f_environment">
+              <option value="Production">Production</option>
+              <option value="Testing">Testing</option>
+              <option value="Retired">Retired</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Review By Date</label>
+            <input type="date" id="f_review_by_date">
+          </div>
+        </div>
+      </div>
+      <!-- SECTION 2: URLs -->
+      <div class="form-section">
+        <div class="form-section-title">URLs &amp; Files</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Live URL</label>
+            <input type="text" id="f_live_url" placeholder="https://jas-query-tracker.vercel.app">
+          </div>
+          <div class="form-group">
+            <label>HTML File Name</label>
+            <input type="text" id="f_file_name" placeholder="jas_query_tracker.html">
+          </div>
+          <div class="form-group">
+            <label>HTML Stored URL</label>
+            <input type="text" id="f_html_stored_url" placeholder="GitHub raw URL or Drive link">
+          </div>
+          <div class="form-group span2">
+            <label>Claude Conversation URL</label>
+            <input type="text" id="f_claude_url" placeholder="https://claude.ai/chat/...">
+          </div>
+        </div>
+      </div>
+      <!-- SECTION 2B: ACCOUNTS -->
+      <div class="form-section">
+        <div class="form-section-title">Accounts &amp; Platforms</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>GitHub Account</label>
+            <input type="text" id="f_github_account" placeholder="e.g. anilpb78">
+          </div>
+          <div class="form-group">
+            <label>GitHub Repo</label>
+            <input type="text" id="f_github_repo" placeholder="anilpb78/jas-query-tracker">
+          </div>
+          <div class="form-group">
+            <label>Vercel Account</label>
+            <input type="text" id="f_vercel_account" placeholder="e.g. anilpb78">
+          </div>
+          <div class="form-group">
+            <label>Claude Project</label>
+            <input type="text" id="f_claude_project" placeholder="e.g. JAS Tours &amp; Travels">
+          </div>
+          <div class="form-group">
+            <label>Supabase Project
+              <button type="button" onclick="openManageSupabaseModal()" style="margin-left:8px;background:var(--violet-dim);border:1px solid var(--violet-border);color:var(--violet-light);font-size:9px;padding:1px 8px;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-weight:700;">&#9881; Manage</button>
+            </label>
+            <select id="f_supabase_project_id">
+              <option value="">— None —</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- SECTION 3: AUTH & SECURITY -->
+      <div class="form-section">
+        <div class="form-section-title">Authenticator &amp; Security
+          <button type="button" onclick="openManageAuthModal()" style="background:var(--violet-dim);border:1px solid var(--violet-border);color:var(--violet-light);font-size:10px;padding:2px 10px;border-radius:5px;cursor:pointer;font-family:var(--font-body);font-weight:700;">&#9881; Manage</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Auth App</label>
+            <select id="f_auth_app_name">
+              <option value="">— None —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Login ID (Email/Username)</label>
+            <input type="text" id="f_auth_login_id" placeholder="anilpb78@gmail.com">
+          </div>
+          <div class="form-group">
+            <label>TOTP Entry Name (as shown in app)</label>
+            <input type="text" id="f_auth_totp_name" placeholder="JAS Tours">
+          </div>
+          <div class="form-group">
+            <label>App Login Password</label>
+            <input type="password" id="f_app_password" placeholder="e.g. 7418" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label>Access Level</label>
+            <select id="f_access_level">
+              <option value="None">None</option>
+              <option value="PIN Only">PIN Only</option>
+              <option value="TOTP Only">TOTP Only</option>
+              <option value="PIN + TOTP">PIN + TOTP</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- SECTION 4: DISPLAY & NOTES -->
+      <div class="form-section">
+        <div class="form-section-title">Notes</div>
+        <div class="form-grid full">
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="f_notes" placeholder="Any additional notes..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Show in Command Centre</label>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+              <input type="checkbox" id="f_show_in_cc" style="width:18px;height:18px;cursor:pointer;accent-color:var(--violet);">
+              <span style="font-size:12px;color:var(--text-muted);">Visible in JAS Command Centre launcher</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- SECTION 5: TECH -->
+      <div class="form-section">
+        <div class="form-section-title">Tech Stack &amp; Dependencies</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Tech Stack</label>
+            <div class="tag-input-row">
+              <input type="text" id="techInput" placeholder="e.g. Supabase" onkeydown="if(event.key==='Enter'){addTag('tech');event.preventDefault();}">
+              <button class="add-btn" onclick="addTag('tech')">Add</button>
+            </div>
+            <div class="tags-display" id="techTags"></div>
+          </div>
+          <div class="form-group">
+            <label>Dependencies (tables/apps)</label>
+            <div class="tag-input-row">
+              <input type="text" id="depInput" placeholder="e.g. enquiries table" onkeydown="if(event.key==='Enter'){addTag('dep');event.preventDefault();}">
+              <button class="add-btn" onclick="addTag('dep')">Add</button>
+            </div>
+            <div class="tags-display" id="depTags"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="deleteAppBtn" onclick="deleteApp()" style="display:none;margin-right:auto;">Delete App</button>
+      <button class="btn btn-secondary" onclick="closeModal('appModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveApp()">Save App</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT PROJECT MODAL -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="projectModalTitle">Add Project</div>
+      <button class="modal-close" onclick="closeModal('projectModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Project Name (Selector Label) *</label>
+          <input type="text" id="fp_name" placeholder="e.g. JAS Tours">
+        </div>
+        <div class="form-group">
+          <label>Display Title (Banner Heading)</label>
+          <input type="text" id="fp_display_title" placeholder="e.g. JAS Tourism Assistant">
+        </div>
+        <div class="form-group">
+          <label>Display Subtitle</label>
+          <input type="text" id="fp_display_subtitle" placeholder="e.g. Travel Agency Operations Hub">
+        </div>
+        <div class="form-group">
+          <label>Owner</label>
+          <input type="text" id="fp_owner" placeholder="e.g. Anil Bhagchandani">
+        </div>
+        <div class="form-group">
+          <label>Accent Color</label>
+          <input type="color" id="fp_color" value="#7C5CFC" style="height:40px;cursor:pointer;">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="deleteProjBtn" onclick="deleteProject()" style="display:none;margin-right:auto;">Delete Project</button>
+      <button class="btn btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Export</div>
+      <button class="modal-close" onclick="closeModal('exportModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="export-options">
+        <div class="export-opt" onclick="exportJSON()">
+          <div class="export-icon">&#123;&#125;</div>
+          <div class="export-info">
+            <div class="export-title">JSON — Full Backup</div>
+            <div class="export-desc">All projects + apps with complete data. Use to restore or migrate.</div>
+          </div>
+        </div>
+        <div class="export-opt" onclick="exportMarkdown()">
+          <div class="export-icon">&#35;</div>
+          <div class="export-info">
+            <div class="export-title">Markdown — Documentation</div>
+            <div class="export-desc">Formatted text list. Paste into docs, notes, or README.</div>
+          </div>
+        </div>
+        <div class="export-opt" onclick="exportPDF()">
+          <div class="export-icon">&#128196;</div>
+          <div class="export-info">
+            <div class="export-title">PDF — Print / Share</div>
+            <div class="export-desc">Clean printable reference. Opens browser print dialog.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE PROJECTS MODAL -->
+<div class="modal-overlay" id="manageProjectsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">&#9881; Manage Projects</div>
+      <button class="modal-close" onclick="closeModal('manageProjectsModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div id="projectsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+      <button class="btn btn-primary" style="width:100%;" onclick="closeModal('manageProjectsModal');openAddProjectModal()">+ Add New Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE SUPABASE PROJECTS MODAL -->
+<div class="modal-overlay" id="manageSupabaseModal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div class="modal-title">&#9889; Manage Supabase Projects</div>
+      <button class="modal-close" onclick="closeModal('manageSupabaseModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div id="supabaseProjectsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+      <!-- ADD FORM -->
+      <div style="background:var(--navy3);border:1px solid var(--navy5);border-radius:10px;padding:14px 16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--violet-light);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">Add New Supabase Project</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Project Name *</label>
+            <input type="text" id="sp_name" placeholder="e.g. jas-production">
+          </div>
+          <div class="form-group">
+            <label>Org / Account Name</label>
+            <input type="text" id="sp_org" placeholder="e.g. JAS Tours">
+          </div>
+          <div class="form-group">
+            <label>Account Email</label>
+            <input type="text" id="sp_email" placeholder="e.g. jastoursonline@gmail.com">
+          </div>
+          <div class="form-group">
+            <label>Region</label>
+            <input type="text" id="sp_region" placeholder="e.g. ap-northeast-1">
+          </div>
+          <div class="form-group span2">
+            <label>Supabase URL</label>
+            <input type="text" id="sp_url" placeholder="https://xxxx.supabase.co">
+          </div>
+          <div class="form-group span2">
+            <label>Proxy URL</label>
+            <input type="text" id="sp_proxy" placeholder="https://xxxx.supabase.co/functions/v1/jas-proxy">
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn btn-primary" onclick="addSupabaseProject()">Add Supabase Project</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('manageSupabaseModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE AUTH APPS MODAL -->
+<div class="modal-overlay" id="manageAuthModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">&#9881; Manage Auth Apps</div>
+      <button class="modal-close" onclick="closeModal('manageAuthModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div id="authAppsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input class="add-pending-input" id="newAuthAppInput" placeholder="e.g. Zoho Authenticator" onkeydown="if(event.key==='Enter')addAuthApp()">
+        <button class="add-btn" onclick="addAuthApp()">Add</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('manageAuthModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
+const PROXY = 'https://yqmcmdnpatdbdsjxbdca.supabase.co/functions/v1/jas-proxy';
+let SESSION = null;
+let SESSION_EXPIRES = null;
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let projects = [];
+let apps = [];
+let filteredApps = [];
+let currentProject = 'all';
+let viewMode = 'compact'; // compact | expanded
+let isDark = true;
+let editingAppId = null;
+let editingProjId = null;
+let tempTechTags = [];
+let tempDepTags = [];
+let recentActivity = [];
+let authApps = [];
+let supabaseProjects = [];
+
+// ══════════════════════════════════════════════
+// SESSION EXPIRY CHECKER — runs every 60 seconds
+// ══════════════════════════════════════════════
+setInterval(() => {
+  if (SESSION && SESSION_EXPIRES && Date.now() > SESSION_EXPIRES) {
+    showToast('Session expired — please login again');
+    setTimeout(() => doLock(), 1500);
+  }
+}, 60000);
+
+// ══════════════════════════════════════════════
+// API
+// ══════════════════════════════════════════════
+async function api(method, table, params = '', body = null, prefer = 'return=representation') {
+  // Client-side expiry check before every call
+  if (SESSION_EXPIRES && Date.now() > SESSION_EXPIRES) {
+    showToast('Session expired — please login again');
+    setTimeout(() => doLock(), 1500);
+    throw new Error('Session expired');
+  }
+  const headers = { 'Content-Type': 'application/json', 'x-jas-session': SESSION };
+  if (prefer) headers['Prefer'] = prefer;
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${PROXY}/rest/v1/${table}${params}`, opts);
+  if (res.status === 401) {
+    showToast('Session expired — please login again');
+    setTimeout(() => doLock(), 1500);
+    throw new Error('Unauthorized');
+  }
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : [];
+}
+
+// ══════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════
+async function doLogin() {
+  const pin = document.getElementById('pinInput').value.trim();
+  const otp = document.getElementById('otpInput').value.trim();
+  const errEl = document.getElementById('loginErr');
+  errEl.textContent = '';
+  if (!pin || !otp) { errEl.textContent = 'Enter PIN and authenticator code'; return; }
+  try {
+    const res = await fetch(`${PROXY}/auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin, otp })
+    });
+    const data = await res.json();
+    if (!data.success) { errEl.textContent = data.error || 'Login failed'; return; }
+    SESSION = data.token;
+    SESSION_EXPIRES = Date.now() + (8 * 60 * 60 * 1000); // 8 hours
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    await loadAll();
+  } catch (e) {
+    errEl.textContent = 'Connection error. Try again.';
+  }
+}
+
+function doLock() {
+  SESSION = null;
+  SESSION_EXPIRES = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('pinInput').value = '';
+  document.getElementById('otpInput').value = '';
+}
+
+// ══════════════════════════════════════════════
+// LOAD DATA
+// ══════════════════════════════════════════════
+async function loadAll() {
+  try {
+    const [projs, appsData, authAppsData, supabaseData] = await Promise.all([
+      api('GET', 'dev_projects', '?order=sort_order.asc,created_at.asc'),
+      api('GET', 'dev_apps', '?order=sort_order.asc,app_name.asc'),
+      api('GET', 'dev_auth_apps', '?order=sort_order.asc,name.asc'),
+      api('GET', 'dev_supabase_projects', '?order=sort_order.asc,name.asc')
+    ]);
+    projects = projs;
+    apps = appsData;
+    authApps = authAppsData;
+    supabaseProjects = supabaseData;
+    buildProjectSel();
+    applyFilters();
+    renderRecentActivity();
+  } catch (e) {
+    showToast('Error loading data: ' + e.message);
+  }
+}
+
+function buildProjectSel() {
+  const sel = document.getElementById('projectSel');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">&#128197; All Projects</option>';
+  projects.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.project_name;
+    sel.appendChild(opt);
+  });
+  if (cur) sel.value = cur;
+}
+
+function buildSupabaseDropdown(selectedId) {
+  const sel = document.getElementById('f_supabase_project_id');
+  const cur = selectedId !== undefined ? selectedId : sel.value;
+  sel.innerHTML = '<option value="">— None —</option>';
+  supabaseProjects.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name + (s.region ? ' (' + s.region + ')' : '');
+    if (s.id === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function openManageSupabaseModal() {
+  renderSupabaseProjectsList();
+  openModal('manageSupabaseModal');
+}
+
+function renderSupabaseProjectsList() {
+  const el = document.getElementById('supabaseProjectsList');
+  if (!supabaseProjects.length) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:12px;">No Supabase projects yet.</div>';
+    return;
+  }
+  el.innerHTML = supabaseProjects.map(s => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--navy3);border:1px solid var(--navy5);border-radius:10px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);">&#9889; ${esc(s.name)}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+          ${s.org_name ? esc(s.org_name) + ' &nbsp;&#183;&nbsp; ' : ''}
+          ${s.region ? esc(s.region) + ' &nbsp;&#183;&nbsp; ' : ''}
+          ${s.account_email ? esc(s.account_email) : ''}
+        </div>
+        ${s.url ? `<div style="font-size:10px;color:var(--text-url);margin-top:2px;">${esc(s.url)}</div>` : ''}
+      </div>
+      <button onclick="editSupabaseProject('${s.id}')" style="background:var(--violet-dim);border:1px solid var(--violet-border);color:var(--violet-light);font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:600;">&#9998; Edit</button>
+      <button onclick="deleteSupabaseProject('${s.id}','${esc(s.name)}')" style="background:var(--red-dim);border:1px solid #EF444433;color:var(--red);font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;">&#10005;</button>
+    </div>`).join('');
+}
+
+let editingSupabaseId = null;
+
+function editSupabaseProject(id) {
+  const s = supabaseProjects.find(x => x.id === id);
+  if (!s) return;
+  editingSupabaseId = id;
+  document.getElementById('sp_name').value = s.name || '';
+  document.getElementById('sp_org').value = s.org_name || '';
+  document.getElementById('sp_email').value = s.account_email || '';
+  document.getElementById('sp_region').value = s.region || '';
+  document.getElementById('sp_url').value = s.url || '';
+  document.getElementById('sp_proxy').value = s.proxy_url || '';
+  // Update button label
+  document.querySelector('[onclick="addSupabaseProject()"]').textContent = 'Update Supabase Project';
+  document.getElementById('sp_name').focus();
+}
+
+async function addSupabaseProject() {
+  const name = document.getElementById('sp_name').value.trim();
+  if (!name) { showToast('Project name required'); return; }
+  const payload = {
+    name,
+    org_name: document.getElementById('sp_org').value.trim() || null,
+    account_email: document.getElementById('sp_email').value.trim() || null,
+    region: document.getElementById('sp_region').value.trim() || null,
+    url: document.getElementById('sp_url').value.trim() || null,
+    proxy_url: document.getElementById('sp_proxy').value.trim() || null,
+  };
+  try {
+    if (editingSupabaseId) {
+      await api('PATCH', 'dev_supabase_projects', `?id=eq.${editingSupabaseId}`, payload);
+      const idx = supabaseProjects.findIndex(s => s.id === editingSupabaseId);
+      if (idx !== -1) Object.assign(supabaseProjects[idx], payload);
+      editingSupabaseId = null;
+      document.querySelector('[onclick="addSupabaseProject()"]').textContent = 'Add Supabase Project';
+      showToast('Supabase project updated');
+    } else {
+      payload.sort_order = supabaseProjects.length + 1;
+      const result = await api('POST', 'dev_supabase_projects', '', payload);
+      supabaseProjects.push(Array.isArray(result) ? result[0] : result);
+      showToast('Supabase project added');
+    }
+    ['sp_name','sp_org','sp_email','sp_region','sp_url','sp_proxy'].forEach(id => document.getElementById(id).value = '');
+    renderSupabaseProjectsList();
+    buildSupabaseDropdown();
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+async function deleteSupabaseProject(id, name) {
+  if (!confirm(`Delete "${name}" from Supabase projects list?\nApps using it will need to be updated.`)) return;
+  try {
+    await api('DELETE', 'dev_supabase_projects', `?id=eq.${id}`, null, '');
+    supabaseProjects = supabaseProjects.filter(s => s.id !== id);
+    renderSupabaseProjectsList();
+    buildSupabaseDropdown();
+    showToast('Deleted');
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+function buildAuthAppDropdown(selectedVal) {
+  const sel = document.getElementById('f_auth_app_name');
+  const cur = selectedVal !== undefined ? selectedVal : sel.value;
+  sel.innerHTML = '<option value="">— None —</option>';
+  authApps.filter(a => a.is_active).forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.name;
+    opt.textContent = a.name;
+    if (a.name === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function openManageAuthModal() {
+  renderAuthAppsList();
+  openModal('manageAuthModal');
+}
+
+function renderAuthAppsList() {
+  const el = document.getElementById('authAppsList');
+  if (!authApps.length) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:12px;">No auth apps yet.</div>';
+    return;
+  }
+  el.innerHTML = authApps.map(a => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--navy3);border:1px solid var(--navy5);border-radius:8px;">
+      <span style="flex:1;font-size:13px;color:var(--text-secondary);font-weight:500;">${esc(a.name)}</span>
+      <span style="font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;${a.is_active ? 'background:var(--green-dim);color:var(--green);' : 'background:var(--grey-dim);color:var(--grey);'}">${a.is_active ? 'Active' : 'Inactive'}</span>
+      <button onclick="toggleAuthApp('${a.id}',${!a.is_active})" style="background:none;border:1px solid var(--navy5);color:var(--text-muted);font-size:11px;padding:3px 8px;border-radius:5px;cursor:pointer;">${a.is_active ? 'Disable' : 'Enable'}</button>
+      <button onclick="deleteAuthApp('${a.id}','${esc(a.name)}')" style="background:none;border:1px solid #EF444433;color:var(--red);font-size:11px;padding:3px 8px;border-radius:5px;cursor:pointer;">&#10005;</button>
+    </div>`).join('');
+}
+
+async function addAuthApp() {
+  const input = document.getElementById('newAuthAppInput');
+  const name = input.value.trim();
+  if (!name) return;
+  try {
+    const result = await api('POST', 'dev_auth_apps', '', { name, is_active: true, sort_order: authApps.length + 1 });
+    authApps.push(result[0] || result);
+    input.value = '';
+    renderAuthAppsList();
+    buildAuthAppDropdown();
+    showToast('Auth app added');
+  } catch (e) { showToast('Error: ' + e.message); }
+}
+
+async function toggleAuthApp(id, newState) {
+  try {
+    await api('PATCH', 'dev_auth_apps', `?id=eq.${id}`, { is_active: newState });
+    const idx = authApps.findIndex(a => a.id === id);
+    if (idx !== -1) authApps[idx].is_active = newState;
+    renderAuthAppsList();
+    buildAuthAppDropdown();
+    showToast(newState ? 'Enabled' : 'Disabled');
+  } catch (e) { showToast('Error: ' + e.message); }
+}
+
+async function deleteAuthApp(id, name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  try {
+    await api('DELETE', 'dev_auth_apps', `?id=eq.${id}`, null, '');
+    authApps = authApps.filter(a => a.id !== id);
+    renderAuthAppsList();
+    buildAuthAppDropdown();
+    showToast('Deleted');
+  } catch (e) { showToast('Error: ' + e.message); }
+}
+
+
+function onProjectChange() {
+  currentProject = document.getElementById('projectSel').value;
+  applyFilters();
+}
+
+// ══════════════════════════════════════════════
+// FILTERS + RENDER
+// ══════════════════════════════════════════════
+function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const env = document.getElementById('filterEnv').value;
+  const sort = document.getElementById('sortBy').value;
+
+  let filtered = [...apps];
+
+  if (currentProject !== 'all') {
+    filtered = filtered.filter(a => a.project_id === currentProject);
+  }
+  if (status) filtered = filtered.filter(a => a.status === status);
+  if (env) filtered = filtered.filter(a => a.environment === env);
+  if (search) {
+    filtered = filtered.filter(a => {
+      const hay = [a.app_name, a.live_url, a.file_name, a.github_repo, a.notes,
+        a.version, a.auth_totp_name, a.html_stored_url,
+        ...(a.tech_stack || []), ...(a.dependencies || [])].join(' ').toLowerCase();
+      return hay.includes(search);
+    });
+  }
+
+  if (sort === 'manual') filtered.sort((a,b) => (a.sort_order||999) - (b.sort_order||999));
+  else if (sort === 'name') filtered.sort((a,b) => a.app_name.localeCompare(b.app_name));
+  else if (sort === 'updated') filtered.sort((a,b) => new Date(b.updated_at||0) - new Date(a.updated_at||0));
+  else if (sort === 'group') {
+    const order = { Live:0, WIP:1, Local:2, Archived:3 };
+    filtered.sort((a,b) => (order[a.status]??9) - (order[b.status]??9) || a.app_name.localeCompare(b.app_name));
+  }
+
+  filteredApps = filtered;
+  renderStats();
+  renderContent();
+}
+
+function renderStats() {
+  const src = currentProject === 'all' ? apps : apps.filter(a => a.project_id === currentProject);
+  const total = src.length;
+  const live = src.filter(a => a.status === 'Live').length;
+  const local = src.filter(a => a.status === 'Local').length;
+  const wip = src.filter(a => a.status === 'WIP').length;
+  document.getElementById('appCount').textContent = `${filteredApps.length} of ${total} apps`;
+  const main = document.getElementById('mainContent');
+  // Stats injected before project sections — done in renderContent
+}
+
+function renderContent() {
+  const main = document.getElementById('mainContent');
+  const src = currentProject === 'all' ? apps : apps.filter(a => a.project_id === currentProject);
+
+  let html = `<div class="stats-row">
+    <div class="stat-card"><div class="stat-num violet">${src.length}</div><div class="stat-lbl">Total Apps</div></div>
+    <div class="stat-card"><div class="stat-num green">${src.filter(a=>a.status==='Live').length}</div><div class="stat-lbl">Live</div></div>
+    <div class="stat-card"><div class="stat-num amber">${src.filter(a=>!a.live_url&&!a.github_repo).length}</div><div class="stat-lbl">HTML Local</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--violet-light)">${src.filter(a=>a.status==='WIP').length}</div><div class="stat-lbl">WIP</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--grey)">${src.filter(a=>a.status==='Archived').length}</div><div class="stat-lbl">Archived</div></div>
+  </div>`;
+
+  if (filteredApps.length === 0) {
+    html += `<div class="empty-state"><div class="es-icon">&#128640;</div><div class="es-title">No apps found</div><div class="es-sub">Add your first app or adjust filters</div></div>`;
+    main.innerHTML = html;
+    return;
+  }
+
+  if (currentProject === 'all') {
+    // Group by project
+    const byProj = {};
+    filteredApps.forEach(a => {
+      const pid = a.project_id || 'unassigned';
+      if (!byProj[pid]) byProj[pid] = [];
+      byProj[pid].push(a);
+    });
+    projects.forEach(p => {
+      if (!byProj[p.id]) return;
+      html += renderProjectSection(p, byProj[p.id]);
+    });
+    if (byProj['unassigned']) {
+      html += renderProjectSection({id:'unassigned',project_name:'Unassigned',display_title:'Unassigned Apps',color:'#64748B'}, byProj['unassigned']);
+    }
+  } else {
+    const p = projects.find(x => x.id === currentProject);
+    if (p) html += renderProjectSection(p, filteredApps);
+  }
+
+  main.innerHTML = html;
+  attachExpandListeners();
+}
+
+function renderProjectSection(p, appList) {
+  const color = p.color || '#7C5CFC';
+  const liveCount = appList.filter(a=>a.status==='Live').length;
+  const localCount = appList.filter(a=>!a.live_url&&!a.github_repo).length;
+  let html = `<div class="project-section" id="ps_${p.id}">
+    <div class="project-banner">
+      <div class="project-banner-left">
+        <div class="project-color-dot" style="background:${color}"></div>
+        <div>
+          <div class="project-title">${esc(p.display_title || p.project_name)}</div>
+          <div class="project-subtitle">${appList.length} apps &nbsp;&#183;&nbsp; ${liveCount} live &nbsp;&#183;&nbsp; ${localCount} local${p.display_subtitle ? ' &nbsp;&#183;&nbsp; ' + esc(p.display_subtitle) : ''}</div>
+        </div>
+      </div>
+      <div class="project-banner-right">
+        ${p.id !== 'unassigned' ? `<button class="proj-edit-btn" onclick="openEditProjectModal('${p.id}')">&#9998; Edit Project</button>` : ''}
+        <button class="proj-edit-btn" onclick="openAddAppModal('${p.id}')">+ Add App</button>
+      </div>
+    </div>`;
+
+  const sort = document.getElementById('sortBy').value;
+  if (viewMode === 'compact') {
+    if (sort === 'group') {
+      const groups = [
+        { label: '&#9679; Live', status: 'Live', cls: 'badge-live' },
+        { label: '&#9679; WIP', status: 'WIP', cls: 'badge-wip' },
+        { label: '&#9679; Local', status: 'Local', cls: 'badge-local' },
+        { label: '&#9679; Archived', status: 'Archived', cls: 'badge-archived' }
+      ];
+      html += `<div class="apps-list">`;
+      groups.forEach(g => {
+        const grpApps = appList.filter(a => a.status === g.status);
+        if (!grpApps.length) return;
+        html += `<div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:1.5px;text-transform:uppercase;padding:8px 4px 4px;margin-top:4px;">${g.label} &nbsp;(${grpApps.length})</div>`;
+        grpApps.forEach(a => { html += renderAppRow(a, color, true); });
+      });
+      html += `</div>`;
+    } else {
+      html += `<div class="apps-list" id="list_${p.id}" data-project="${p.id}">`;
+      appList.forEach(a => { html += renderAppRow(a, color, sort === 'manual'); });
+      html += `</div>`;
+    }
+  } else {
+    html += `<div class="apps-grid">`;
+    appList.forEach(a => { html += renderAppCard(a, color); });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function statusColor(status) {
+  if (status === 'Live') return 'var(--green)';
+  if (status === 'Local') return 'var(--amber)';
+  if (status === 'WIP') return 'var(--violet)';
+  return 'var(--grey)';
+}
+
+function statusBadge(status) {
+  const map = { Live:'badge-live', Local:'badge-local', WIP:'badge-wip', Archived:'badge-archived' };
+  return `<span class="badge ${map[status]||'badge-archived'}">${status}</span>`;
+}
+
+function envBadge(env) {
+  if (!env || env === 'Production') return `<span class="badge badge-prod">Prod</span>`;
+  if (env === 'Testing') return `<span class="badge badge-test">Test</span>`;
+  return `<span class="badge badge-retired">Retired</span>`;
+}
+
+function isOverdue(a) {
+  if (!a.review_by_date) return false;
+  return new Date(a.review_by_date) < new Date();
+}
+
+function pendingCount(a) {
+  if (!a.pending_items || !a.pending_items.length) return 0;
+  return a.pending_items.filter(p => !p.done).length;
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'2-digit'});
+}
+
+function renderAppRow(a, projColor, draggable) {
+  const pend = pendingCount(a);
+  const overdue = isOverdue(a);
+  const changelog = a.changelog || [];
+  const lastCl = changelog.length ? changelog[changelog.length-1] : null;
+  const dragHandle = draggable ? `<div class="drag-handle" title="Drag to reorder">&#8942;&#8942;</div>` : '';
+
+  return `<div class="app-row" id="ar_${a.id}" data-id="${a.id}" ${draggable ? 'draggable="true" ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragend="onDragEnd(event)"' : ''}>
+    <div class="app-row-main" onclick="toggleExpand('${a.id}')">
+      ${dragHandle}
+      <div class="row-status-bar" style="background:${statusColor(a.status)}"></div>
+      <div class="row-info">
+        <div class="row-name-line">
+          <span class="row-name">${esc(a.app_name)}</span>
+          <div class="row-badges">
+            ${statusBadge(a.status)}
+            ${envBadge(a.environment)}
+            ${overdue ? '<span class="badge badge-overdue">Review Due</span>' : ''}
+            ${pend > 0 ? `<span class="row-pending-chip">${pend} pending</span>` : ''}
+          </div>
+        </div>
+        <div class="row-meta">
+          ${a.live_url ? `<span class="row-url">&#127760; ${esc(a.live_url)}</span>` : ''}
+          ${a.file_name ? `<span class="row-file">&#128196; ${esc(a.file_name)}</span>` : ''}
+          ${a.version ? `<span class="row-ver">${esc(a.version)}</span>` : ''}
+          ${lastCl ? `<span class="row-date">Updated ${fmtDate(lastCl.date)}</span>` : (a.updated_at ? `<span class="row-date">${fmtDate(a.updated_at)}</span>` : '')}
+        </div>
+      </div>
+      <div class="row-right">
+        ${a.live_url ? `<button class="action-btn open" onclick="openURL(event,'${a.id}','${esc(a.live_url)}')">&#8599; Open</button>` : ''}
+        ${a.live_url ? `<button class="action-btn" onclick="copyText(event,'${esc(a.live_url)}','URL copied')">&#128203;</button>` : ''}
+        <button class="action-btn" onclick="openEditAppModal(event,'${a.id}')">&#9998;</button>
+        <span class="row-expand-icon" onclick="event.stopPropagation();toggleExpand('${a.id}')">&#9660;</span>
+      </div>
+    </div>
+    <div class="app-expand-panel" id="ep_${a.id}">
+      ${renderExpandPanel(a)}
+    </div>
+  </div>`;
+}
+
+function renderAppCard(a, projColor) {
+  const pend = pendingCount(a);
+  const overdue = isOverdue(a);
+  const pinned = a.is_pinned ? ' pinned' : '';
+
+  return `<div class="app-card${pinned}">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--navy4);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:3px;height:28px;border-radius:2px;background:${statusColor(a.status)};flex-shrink:0;"></div>
+          <div>
+            <div style="font-family:var(--font-display);font-size:15px;font-weight:800;color:var(--text-primary);">${esc(a.app_name)}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${esc(a.version||'')}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;">
+          ${statusBadge(a.status)}
+          ${envBadge(a.environment)}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        ${a.live_url ? `<button class="action-btn open" onclick="openURL(event,'${a.id}','${esc(a.live_url)}')">&#8599; Open</button>` : ''}
+        ${a.live_url ? `<button class="action-btn" onclick="copyText(event,'${esc(a.live_url)}','URL copied')">Copy URL</button>` : ''}
+        ${a.file_name ? `<button class="action-btn" onclick="copyText(event,'${esc(a.file_name)}','Filename copied')">Copy File</button>` : ''}
+        <button class="action-btn" onclick="openEditAppModal(event,'${a.id}')">&#9998; Edit</button>
+      </div>
+    </div>
+    <div style="padding:12px 16px;">
+      ${renderExpandPanel(a)}
+    </div>
+  </div>`;
+}
+
+function renderExpandPanel(a) {
+  const changelog = a.changelog || [];
+  const pending = a.pending_items || [];
+  const tech = a.tech_stack || [];
+  const deps = a.dependencies || [];
+
+  return `<div class="expand-tabs">
+    <div class="expand-tab active" onclick="switchTab(this,'tab_details_${a.id}')">Details</div>
+    <div class="expand-tab" onclick="switchTab(this,'tab_pending_${a.id}')">Pending ${pending.filter(p=>!p.done).length > 0 ? `(${pending.filter(p=>!p.done).length})`:''}</div>
+    <div class="expand-tab" onclick="switchTab(this,'tab_changelog_${a.id}')">Changelog ${changelog.length ? `(${changelog.length})`:''}</div>
+    <div class="expand-tab" onclick="switchTab(this,'tab_auth_${a.id}')">Auth &amp; Links</div>
+  </div>
+  <div class="expand-content">
+    <div class="expand-pane active" id="tab_details_${a.id}">
+      <div class="details-grid">
+        ${a.live_url ? `<div class="detail-item"><label>Live URL</label><div class="detail-val copy-val" onclick="copyText(event,'${esc(a.live_url)}','URL copied')"><a href="${esc(a.live_url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(a.live_url)}</a> &#128203;</div></div>` : ''}
+        ${a.github_repo ? `<div class="detail-item"><label>GitHub</label><div class="detail-val"><a href="https://github.com/${esc(a.github_repo)}" target="_blank" rel="noopener noreferrer">&#128279; ${esc(a.github_repo)}</a></div></div>` : ''}
+        ${a.file_name ? `<div class="detail-item"><label>File Name</label><div class="detail-val copy-val" onclick="copyText(event,'${esc(a.file_name)}','Filename copied')">${esc(a.file_name)} &#128203;</div></div>` : ''}
+        ${a.html_stored_url ? `<div class="detail-item"><label>Stored At</label><div class="detail-val"><a href="${esc(a.html_stored_url)}" target="_blank" rel="noopener noreferrer">&#128279; View File</a></div></div>` : ''}
+        ${a.access_level ? `<div class="detail-item"><label>Access</label><div class="detail-val">&#128274; ${esc(a.access_level)}</div></div>` : ''}
+        ${a.review_by_date ? `<div class="detail-item"><label>Review By</label><div class="detail-val" style="color:${isOverdue(a)?'var(--red)':'var(--text-secondary)'}">&#128197; ${fmtDate(a.review_by_date)}${isOverdue(a)?' &#9888; OVERDUE':''}</div></div>` : ''}
+        ${a.notes ? `<div class="detail-item" style="grid-column:1/-1"><label>Notes</label><div class="detail-val">${esc(a.notes)}</div></div>` : ''}
+      </div>
+      ${tech.length ? `<div style="margin-top:12px;"><div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Tech Stack</div><div class="chips-row">${tech.map(t=>`<span class="chip violet">${esc(t)}</span>`).join('')}</div></div>` : ''}
+      ${deps.length ? `<div style="margin-top:10px;"><div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Dependencies</div><div class="chips-row">${deps.map(d=>`<span class="chip">${esc(d)}</span>`).join('')}</div></div>` : ''}
+    </div>
+
+    <div class="expand-pane" id="tab_pending_${a.id}">
+      <div class="pending-list" id="pl_${a.id}">
+        ${pending.map((p,i) => `
+          <div class="pending-item" id="pi_${a.id}_${i}">
+            <div class="pending-cb${p.done?' done':''}" onclick="togglePending('${a.id}',${i})"></div>
+            <span class="pending-text${p.done?' done':''}">${esc(p.text)}</span>
+            <span class="pending-del" onclick="deletePending('${a.id}',${i})">&#10005;</span>
+          </div>`).join('')}
+      </div>
+      <div class="add-pending-row">
+        <input class="add-pending-input" id="pInput_${a.id}" placeholder="Add pending item..." onkeydown="if(event.key==='Enter')addPending('${a.id}')">
+        <button class="add-btn" onclick="addPending('${a.id}')">Add</button>
+      </div>
+    </div>
+
+    <div class="expand-pane" id="tab_changelog_${a.id}">
+      <div class="changelog-list" id="cl_${a.id}">
+        ${[...changelog].reverse().map((c,i) => `
+          <div class="cl-item">
+            <div class="cl-ver">${esc(c.version||'')}</div>
+            <div class="cl-date">${fmtDate(c.date)}</div>
+            <div class="cl-note">${esc(c.note)}</div>
+            <span class="cl-del" onclick="deleteChangelog('${a.id}',${changelog.length-1-i})">&#10005;</span>
+          </div>`).join('')}
+      </div>
+      <div class="add-cl-row">
+        <input class="add-cl-input add-cl-ver" id="clVer_${a.id}" placeholder="v1.1">
+        <input class="add-cl-input" style="flex:2" id="clNote_${a.id}" placeholder="What changed..." onkeydown="if(event.key==='Enter')addChangelog('${a.id}')">
+        <button class="add-btn" onclick="addChangelog('${a.id}')">Add</button>
+      </div>
+    </div>
+
+    <div class="expand-pane" id="tab_auth_${a.id}">
+      ${(a.auth_app_name||a.auth_login_id||a.auth_totp_name||a.app_password||a.supabase_project_id||a.claude_url||a.github_account||a.vercel_account||a.claude_project) ? `
+      <div class="auth-info-box">
+        ${a.auth_app_name ? `<div class="auth-row"><span class="auth-icon">&#128241;</span><span class="auth-label">Auth App</span><span class="auth-val">${esc(a.auth_app_name)}</span></div>` : ''}
+        ${a.auth_login_id ? `<div class="auth-row"><span class="auth-icon">&#64;</span><span class="auth-label">Login ID</span><span class="auth-val">${esc(a.auth_login_id)}</span><span class="auth-copy" onclick="copyText(event,'${esc(a.auth_login_id)}','Copied!')">&#128203; Copy</span></div>` : ''}
+        ${a.auth_totp_name ? `<div class="auth-row"><span class="auth-icon">&#128273;</span><span class="auth-label">TOTP Entry</span><span class="auth-val">${esc(a.auth_totp_name)}</span></div>` : ''}
+        ${a.app_password ? `<div class="auth-row"><span class="auth-icon">&#128274;</span><span class="auth-label">App Password</span><span class="auth-val">••••••</span><span class="auth-copy" onclick="copyText(event,'${esc(a.app_password)}','Password copied!')">&#128203; Copy</span></div>` : ''}
+        ${(() => { const sp = supabaseProjects.find(s => s.id === a.supabase_project_id); return sp ? `<div class="auth-row"><span class="auth-icon">&#9889;</span><span class="auth-label">Supabase</span><span class="auth-val">${esc(sp.name)}${sp.region?' ('+esc(sp.region)+')':''}</span></div>` : ''; })()}
+        ${a.github_account ? `<div class="auth-row"><span class="auth-icon">&#128025;</span><span class="auth-label">GitHub Acct</span><span class="auth-val">${esc(a.github_account)}</span></div>` : ''}
+        ${a.vercel_account ? `<div class="auth-row"><span class="auth-icon">&#9651;</span><span class="auth-label">Vercel Acct</span><span class="auth-val">${esc(a.vercel_account)}</span></div>` : ''}
+        ${a.claude_project ? `<div class="auth-row"><span class="auth-icon">&#129302;</span><span class="auth-label">Claude Project</span><span class="auth-val">${esc(a.claude_project)}</span></div>` : ''}
+        ${a.claude_url ? `<div class="auth-row"><span class="auth-icon">&#128279;</span><span class="auth-label">Claude Chat</span><span class="auth-val"><a href="${esc(a.claude_url)}" target="_blank" rel="noopener noreferrer">&#128279; Open Conversation</a></span></div>` : ''}
+      </div>` : `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">No auth or account info added yet. Click Edit to add.</div>`}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// EXPAND / TABS
+// ══════════════════════════════════════════════
+function attachExpandListeners() {}
+
+function toggleExpand(id) {
+  const row = document.getElementById('ar_' + id);
+  if (!row) return;
+  row.classList.toggle('expanded');
+}
+
+function switchTab(tabEl, paneId) {
+  const panel = tabEl.closest('.app-expand-panel') || tabEl.closest('.app-card');
+  if (!panel) return;
+  panel.querySelectorAll('.expand-tab').forEach(t => t.classList.remove('active'));
+  panel.querySelectorAll('.expand-pane').forEach(p => p.classList.remove('active'));
+  tabEl.classList.add('active');
+  const pane = document.getElementById(paneId);
+  if (pane) pane.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// PENDING ITEMS
+// ══════════════════════════════════════════════
+async function addPending(appId) {
+  const input = document.getElementById('pInput_' + appId);
+  const text = input.value.trim();
+  if (!text) return;
+  const app = apps.find(a => a.id === appId);
+  if (!app) return;
+  const pending = [...(app.pending_items || []), { text, done: false }];
+  await patchApp(appId, { pending_items: pending });
+  input.value = '';
+  addRecentActivity(app.app_name, 'Pending item added');
+}
+
+async function togglePending(appId, idx) {
+  const app = apps.find(a => a.id === appId);
+  if (!app) return;
+  const pending = [...(app.pending_items || [])];
+  pending[idx].done = !pending[idx].done;
+  await patchApp(appId, { pending_items: pending });
+}
+
+async function deletePending(appId, idx) {
+  const app = apps.find(a => a.id === appId);
+  if (!app) return;
+  const pending = [...(app.pending_items || [])];
+  pending.splice(idx, 1);
+  await patchApp(appId, { pending_items: pending });
+}
+
+// ══════════════════════════════════════════════
+// CHANGELOG
+// ══════════════════════════════════════════════
+async function addChangelog(appId) {
+  const ver = document.getElementById('clVer_' + appId).value.trim();
+  const note = document.getElementById('clNote_' + appId).value.trim();
+  if (!note) return;
+  const app = apps.find(a => a.id === appId);
+  if (!app) return;
+  const changelog = [...(app.changelog || []), { version: ver || app.version || '', date: new Date().toISOString().split('T')[0], note }];
+  await patchApp(appId, { changelog });
+  document.getElementById('clVer_' + appId).value = '';
+  document.getElementById('clNote_' + appId).value = '';
+  addRecentActivity(app.app_name, 'Changelog: ' + note);
+}
+
+async function deleteChangelog(appId, idx) {
+  const app = apps.find(a => a.id === appId);
+  if (!app) return;
+  const changelog = [...(app.changelog || [])];
+  changelog.splice(idx, 1);
+  await patchApp(appId, { changelog });
+}
+
+// ══════════════════════════════════════════════
+// PATCH APP (inline updates)
+// ══════════════════════════════════════════════
+async function patchApp(appId, fields) {
+  try {
+    fields.updated_at = new Date().toISOString();
+    await api('PATCH', 'dev_apps', `?id=eq.${appId}`, fields);
+    const idx = apps.findIndex(a => a.id === appId);
+    if (idx !== -1) Object.assign(apps[idx], fields);
+    applyFilters();
+  } catch (e) {
+    showToast('Error saving: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════
+// OPEN URL (track last opened)
+// ══════════════════════════════════════════════
+async function openURL(e, appId, url) {
+  e.stopPropagation();
+  await patchApp(appId, { last_opened_at: new Date().toISOString() });
+  window.open(url, '_blank');
+}
+
+// ══════════════════════════════════════════════
+// COPY
+// ══════════════════════════════════════════════
+function copyText(e, text, msg) {
+  e.stopPropagation();
+  navigator.clipboard.writeText(text).then(() => showToast(msg || 'Copied!'));
+}
+
+// ══════════════════════════════════════════════
+// ADD / EDIT APP MODAL
+// ══════════════════════════════════════════════
+function openAddAppModal(projId) {
+  editingAppId = null;
+  tempTechTags = [];
+  tempDepTags = [];
+  document.getElementById('appModalTitle').textContent = 'Add App';
+  document.getElementById('deleteAppBtn').style.display = 'none';
+  clearAppForm();
+  buildProjectDropdown(projId || (currentProject !== 'all' ? currentProject : null));
+  buildAuthAppDropdown('');
+  buildSupabaseDropdown('');
+  openModal('appModal');
+}
+
+function openEditAppModal(e, appId) {
+  e.stopPropagation();
+  editingAppId = appId;
+  const a = apps.find(x => x.id === appId);
+  if (!a) return;
+  document.getElementById('appModalTitle').textContent = 'Edit App — ' + a.app_name;
+  document.getElementById('deleteAppBtn').style.display = 'inline-flex';
+  tempTechTags = [...(a.tech_stack || [])];
+  tempDepTags = [...(a.dependencies || [])];
+  buildProjectDropdown(a.project_id);
+  buildAuthAppDropdown(a.auth_app_name || '');
+  buildSupabaseDropdown(a.supabase_project_id || '');
+  document.getElementById('f_github_account').value = a.github_account || '';
+  document.getElementById('f_vercel_account').value = a.vercel_account || '';
+  document.getElementById('f_claude_project').value = a.claude_project || '';
+  document.getElementById('f_app_name').value = a.app_name || '';
+  document.getElementById('f_version').value = a.version || '';
+  document.getElementById('f_status').value = a.status || 'WIP';
+  document.getElementById('f_environment').value = a.environment || 'Production';
+  document.getElementById('f_access_level').value = a.access_level || 'PIN + TOTP';
+  document.getElementById('f_review_by_date').value = a.review_by_date || '';
+  document.getElementById('f_live_url').value = a.live_url || '';
+  document.getElementById('f_github_repo').value = a.github_repo || '';
+  document.getElementById('f_file_name').value = a.file_name || '';
+  document.getElementById('f_html_stored_url').value = a.html_stored_url || '';
+  document.getElementById('f_claude_url').value = a.claude_url || '';
+  document.getElementById('f_auth_app_name').value = a.auth_app_name || '';
+  document.getElementById('f_auth_login_id').value = a.auth_login_id || '';
+  document.getElementById('f_auth_totp_name').value = a.auth_totp_name || '';
+  document.getElementById('f_app_password').value = a.app_password || '';
+  document.getElementById('f_notes').value = a.notes || '';
+  document.getElementById('f_show_in_cc').checked = !!a.show_in_cc;
+  renderTagsDisplay();
+  openModal('appModal');
+}
+
+function clearAppForm() {
+  ['f_app_name','f_version','f_live_url','f_github_repo','f_github_account','f_vercel_account','f_claude_project','f_file_name','f_html_stored_url','f_claude_url','f_auth_login_id','f_auth_totp_name','f_app_password','f_notes','f_review_by_date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('f_status').value = 'WIP';
+  document.getElementById('f_environment').value = 'Production';
+  document.getElementById('f_access_level').value = 'PIN + TOTP';
+  document.getElementById('f_supabase_project_id').value = '';
+  document.getElementById('f_show_in_cc').checked = false;
+  renderTagsDisplay();
+}
+
+function buildProjectDropdown(selectedId) {
+  const sel = document.getElementById('f_project_id');
+  sel.innerHTML = '<option value="">— No Project —</option>';
+  projects.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.project_name;
+    if (p.id === selectedId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+async function saveApp() {
+  const name = document.getElementById('f_app_name').value.trim();
+  if (!name) { showToast('App name is required'); return; }
+  const payload = {
+    app_name: name,
+    project_id: document.getElementById('f_project_id').value || null,
+    version: document.getElementById('f_version').value.trim() || 'v1.0',
+    status: document.getElementById('f_status').value,
+    environment: document.getElementById('f_environment').value,
+    access_level: document.getElementById('f_access_level').value,
+    review_by_date: document.getElementById('f_review_by_date').value || null,
+    live_url: document.getElementById('f_live_url').value.trim() || null,
+    github_repo: document.getElementById('f_github_repo').value.trim() || null,
+    github_account: document.getElementById('f_github_account').value.trim() || null,
+    vercel_account: document.getElementById('f_vercel_account').value.trim() || null,
+    claude_project: document.getElementById('f_claude_project').value.trim() || null,
+    supabase_project_id: document.getElementById('f_supabase_project_id').value || null,
+    file_name: document.getElementById('f_file_name').value.trim() || null,
+    html_stored_url: document.getElementById('f_html_stored_url').value.trim() || null,
+    claude_url: document.getElementById('f_claude_url').value.trim() || null,
+    auth_app_name: document.getElementById('f_auth_app_name').value || null,
+    auth_login_id: document.getElementById('f_auth_login_id').value.trim() || null,
+    auth_totp_name: document.getElementById('f_auth_totp_name').value.trim() || null,
+    app_password: document.getElementById('f_app_password').value.trim() || null,
+    notes: document.getElementById('f_notes').value.trim() || null,
+    show_in_cc: document.getElementById('f_show_in_cc').checked,
+    tech_stack: tempTechTags,
+    dependencies: tempDepTags,
+    updated_at: new Date().toISOString()
+  };
+  try {
+    if (editingAppId) {
+      await api('PATCH', 'dev_apps', `?id=eq.${editingAppId}`, payload);
+      addRecentActivity(name, 'App updated');
+      showToast('App updated');
+    } else {
+      payload.changelog = [];
+      payload.pending_items = [];
+      await api('POST', 'dev_apps', '', payload);
+      addRecentActivity(name, 'App added');
+      showToast('App added');
+    }
+    closeModal('appModal');
+    await loadAll();
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+async function deleteApp() {
+  if (!editingAppId) return;
+  const a = apps.find(x => x.id === editingAppId);
+  if (!confirm(`Delete "${a?.app_name}"? This cannot be undone.`)) return;
+  try {
+    await api('DELETE', 'dev_apps', `?id=eq.${editingAppId}`, null, '');
+    showToast('App deleted');
+    closeModal('appModal');
+    await loadAll();
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════
+// TAGS
+// ══════════════════════════════════════════════
+function addTag(type) {
+  const inputId = type === 'tech' ? 'techInput' : 'depInput';
+  const input = document.getElementById(inputId);
+  const val = input.value.trim();
+  if (!val) return;
+  if (type === 'tech') { if (!tempTechTags.includes(val)) tempTechTags.push(val); }
+  else { if (!tempDepTags.includes(val)) tempDepTags.push(val); }
+  input.value = '';
+  renderTagsDisplay();
+}
+
+function removeTag(type, val) {
+  if (type === 'tech') tempTechTags = tempTechTags.filter(t => t !== val);
+  else tempDepTags = tempDepTags.filter(t => t !== val);
+  renderTagsDisplay();
+}
+
+function renderTagsDisplay() {
+  document.getElementById('techTags').innerHTML = tempTechTags.map(t => `<span class="tag-chip">${esc(t)}<span class="del" onclick="removeTag('tech','${esc(t)}')">&#10005;</span></span>`).join('');
+  document.getElementById('depTags').innerHTML = tempDepTags.map(t => `<span class="tag-chip">${esc(t)}<span class="del" onclick="removeTag('dep','${esc(t)}')">&#10005;</span></span>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// PROJECT MODAL
+// ══════════════════════════════════════════════
+function openManageProjectsModal() {
+  renderProjectsList();
+  openModal('manageProjectsModal');
+}
+
+function renderProjectsList() {
+  const el = document.getElementById('projectsList');
+  if (!projects.length) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:12px;">No projects yet. Add one below.</div>';
+    return;
+  }
+  el.innerHTML = projects.map(p => {
+    const appCount = apps.filter(a => a.project_id === p.id).length;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--navy3);border:1px solid var(--navy5);border-radius:10px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:${p.color||'#7C5CFC'};flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary);font-family:var(--font-display);">${esc(p.display_title||p.project_name)}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${esc(p.project_name)} &nbsp;&#183;&nbsp; ${appCount} app${appCount!==1?'s':''}</div>
+      </div>
+      <button onclick="closeModal('manageProjectsModal');openEditProjectModal('${p.id}')" style="background:var(--violet-dim);border:1px solid var(--violet-border);color:var(--violet-light);font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:var(--font-body);font-weight:600;">&#9998; Edit</button>
+      <button onclick="confirmDeleteProject('${p.id}','${esc(p.project_name)}')" style="background:var(--red-dim);border:1px solid #EF444433;color:var(--red);font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:var(--font-body);font-weight:600;">&#10005;</button>
+    </div>`;
+  }).join('');
+}
+
+function confirmDeleteProject(id, name) {
+  const appCount = apps.filter(a => a.project_id === id).length;
+  const msg = appCount > 0
+    ? `Delete project "${name}"?\n\n${appCount} app(s) will become unassigned. This cannot be undone.`
+    : `Delete project "${name}"? This cannot be undone.`;
+  if (!confirm(msg)) return;
+  editingProjId = id;
+  deleteProject();
+}
+
+function openAddProjectModal() {
+  editingProjId = null;
+  document.getElementById('projectModalTitle').textContent = 'Add Project';
+  document.getElementById('deleteProjBtn').style.display = 'none';
+  ['fp_name','fp_display_title','fp_display_subtitle','fp_owner'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fp_color').value = '#7C5CFC';
+  openModal('projectModal');
+}
+
+function openEditProjectModal(projId) {
+  editingProjId = projId;
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  document.getElementById('projectModalTitle').textContent = 'Edit Project — ' + p.project_name;
+  document.getElementById('deleteProjBtn').style.display = 'inline-flex';
+  document.getElementById('fp_name').value = p.project_name || '';
+  document.getElementById('fp_display_title').value = p.display_title || '';
+  document.getElementById('fp_display_subtitle').value = p.display_subtitle || '';
+  document.getElementById('fp_owner').value = p.owner || '';
+  document.getElementById('fp_color').value = p.color || '#7C5CFC';
+  openModal('projectModal');
+}
+
+async function saveProject() {
+  const name = document.getElementById('fp_name').value.trim();
+  if (!name) { showToast('Project name required'); return; }
+  const payload = {
+    project_name: name,
+    display_title: document.getElementById('fp_display_title').value.trim() || null,
+    display_subtitle: document.getElementById('fp_display_subtitle').value.trim() || null,
+    owner: document.getElementById('fp_owner').value.trim() || null,
+    color: document.getElementById('fp_color').value
+  };
+  try {
+    if (editingProjId) {
+      await api('PATCH', 'dev_projects', `?id=eq.${editingProjId}`, payload);
+      showToast('Project updated');
+    } else {
+      await api('POST', 'dev_projects', '', payload);
+      showToast('Project created');
+    }
+    closeModal('projectModal');
+    closeModal('manageProjectsModal');
+    await loadAll();
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+async function deleteProject() {
+  if (!editingProjId) return;
+  const p = projects.find(x => x.id === editingProjId);
+  if (!confirm(`Delete project "${p?.project_name}"? All apps in this project will be unassigned.`)) return;
+  try {
+    await api('DELETE', 'dev_projects', `?id=eq.${editingProjId}`, null, '');
+    showToast('Project deleted');
+    closeModal('projectModal');
+    closeModal('manageProjectsModal');
+    await loadAll();
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════
+function openExportModal() { openModal('exportModal'); }
+
+function exportJSON() {
+  const data = { projects, apps, exported_at: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `devtrack_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  showToast('JSON exported');
+  closeModal('exportModal');
+}
+
+function exportMarkdown() {
+  let md = `# DEVTRACK — Project Registry\nExported: ${new Date().toLocaleDateString('en-IN')}\n\n`;
+  projects.forEach(p => {
+    md += `## ${p.display_title || p.project_name}\n`;
+    if (p.display_subtitle) md += `*${p.display_subtitle}*\n`;
+    md += `\n`;
+    const projApps = apps.filter(a => a.project_id === p.id);
+    projApps.forEach(a => {
+      md += `### ${a.app_name} (${a.status}) — ${a.version || ''}\n`;
+      if (a.live_url) md += `- **URL:** ${a.live_url}\n`;
+      if (a.file_name) md += `- **File:** ${a.file_name}\n`;
+      if (a.github_repo) md += `- **GitHub:** https://github.com/${a.github_repo}\n`;
+      if (a.access_level) md += `- **Access:** ${a.access_level}\n`;
+      if (a.tech_stack?.length) md += `- **Tech:** ${a.tech_stack.join(', ')}\n`;
+      if (a.dependencies?.length) md += `- **Dependencies:** ${a.dependencies.join(', ')}\n`;
+      if (a.notes) md += `- **Notes:** ${a.notes}\n`;
+      if (a.claude_url) md += `- **Claude Chat:** ${a.claude_url}\n`;
+      const pend = (a.pending_items||[]).filter(p=>!p.done);
+      if (pend.length) md += `- **Pending:** ${pend.map(p=>p.text).join(' | ')}\n`;
+      md += `\n`;
+    });
+  });
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `devtrack_${new Date().toISOString().split('T')[0]}.md`;
+  a.click();
+  showToast('Markdown exported');
+  closeModal('exportModal');
+}
+
+function exportPDF() {
+  closeModal('exportModal');
+  setTimeout(() => window.print(), 300);
+}
+
+// ══════════════════════════════════════════════
+// RECENT ACTIVITY
+// ══════════════════════════════════════════════
+function addRecentActivity(appName, action) {
+  recentActivity.unshift({ appName, action, time: new Date() });
+  if (recentActivity.length > 5) recentActivity.pop();
+  renderRecentActivity();
+}
+
+function renderRecentActivity() {
+  const el = document.getElementById('recentItems');
+  if (!recentActivity.length) {
+    el.innerHTML = '<span style="font-size:11px;color:var(--text-muted)">No activity yet</span>';
+    return;
+  }
+  el.innerHTML = recentActivity.map(r =>
+    `<div class="recent-item"><span class="ri-dot">&#9679;</span>${esc(r.appName)} — ${esc(r.action)}</div>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════════
+// VIEW / THEME TOGGLES
+// ══════════════════════════════════════════════
+function toggleView() {
+  viewMode = viewMode === 'compact' ? 'expanded' : 'compact';
+  document.getElementById('viewToggleBtn').innerHTML = viewMode === 'compact' ? '&#9783; Compact' : '&#9783; Expanded';
+  applyFilters();
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeBtn').innerHTML = isDark ? '&#9788; Light' : '&#9790; Dark';
+}
+
+// ══════════════════════════════════════════════
+// MODAL HELPERS
+// ══════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ══════════════════════════════════════════════
+// DRAG & DROP REORDER
+// ══════════════════════════════════════════════
+let dragSrcId = null;
+
+function onDragStart(e) {
+  dragSrcId = e.currentTarget.dataset.id;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.app-row').forEach(r => r.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDragEnd(e) {
+  document.querySelectorAll('.app-row').forEach(r => {
+    r.classList.remove('dragging');
+    r.classList.remove('drag-over');
+  });
+}
+
+async function onDrop(e) {
+  e.preventDefault();
+  const targetId = e.currentTarget.dataset.id;
+  if (!dragSrcId || dragSrcId === targetId) return;
+
+  // Find the list container
+  const list = e.currentTarget.closest('.apps-list');
+  if (!list) return;
+  const projectId = list.dataset.project;
+
+  // Get current order from DOM
+  const rows = [...list.querySelectorAll('.app-row')];
+  const ids = rows.map(r => r.dataset.id);
+
+  // Move dragSrc before target
+  const srcIdx = ids.indexOf(dragSrcId);
+  const tgtIdx = ids.indexOf(targetId);
+  ids.splice(srcIdx, 1);
+  ids.splice(tgtIdx, 0, dragSrcId);
+
+  // Update sort_order in apps state
+  ids.forEach((id, idx) => {
+    const app = apps.find(a => a.id === id);
+    if (app) app.sort_order = idx + 1;
+  });
+
+  // Save to Supabase in background
+  try {
+    await Promise.all(ids.map((id, idx) =>
+      api('PATCH', 'dev_apps', `?id=eq.${id}`, { sort_order: idx + 1 }, '')
+    ));
+    showToast('Order saved');
+  } catch (e) {
+    showToast('Error saving order');
+  }
+
+  applyFilters();
+  dragSrcId = null;
+}
+
+// ══════════════════════════════════════════════
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (!SESSION) return;
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+  if (e.key === 'n' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    openAddAppModal();
+  }
+  if (e.key === 'f' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+</script>
+</body>
+</html>
