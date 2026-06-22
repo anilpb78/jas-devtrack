@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DEVTRACK — JAS Project Manager</title>
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#7C5CFC" id="pwa-theme-color">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DevTrack">
+<link rel="apple-touch-icon" href="https://pub-d532512811d3434d9d1e27bcb4904ab2.r2.dev/icons/jas-icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1996,6 +2004,8 @@ function toggleTheme() {
   isDark = !isDark;
   document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
   document.getElementById('themeBtn').innerHTML = isDark ? '&#9788; Light' : '&#9790; Dark';
+  var tc = document.getElementById('pwa-theme-color');
+  if (tc) tc.setAttribute('content', isDark ? '#7C5CFC' : '#ffffff');
 }
 
 // ══════════════════════════════════════════════
@@ -2103,7 +2113,48 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     document.getElementById('searchInput').focus();
   }
-});
+/* ===== PWA — Service Worker + Install Prompt (Aurora theme) ===== */
+(function initPWA() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').then(function(reg) {
+        reg.addEventListener('updatefound', function() {
+          var newSW = reg.installing;
+          newSW.addEventListener('statechange', function() {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              showPWABanner('App updated — tap to refresh', true);
+            }
+          });
+        });
+      }).catch(function(e) { console.log('[SW]', e); });
+    });
+  }
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(function() { showPWABanner('Install DevTrack on home screen', false); }, 3000);
+  });
+  window.addEventListener('appinstalled', function() {
+    deferredPrompt = null;
+    var b = document.getElementById('pwa-install');
+    if (b) b.remove();
+  });
+  function showPWABanner(msg, isUpdate) {
+    var id = isUpdate ? 'pwa-update' : 'pwa-install';
+    if (document.getElementById(id)) return;
+    var el = document.createElement('div');
+    el.id = id;
+    el.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0F1120;color:#E2E8F0;border:1px solid rgba(124,92,252,.35);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(0,0,0,.7);z-index:9999;font-family:Plus Jakarta Sans,sans-serif;font-size:13.5px;max-width:calc(100vw - 32px);';
+    var btnTxt = isUpdate ? 'Refresh' : 'Install';
+    var btnAct = isUpdate
+      ? 'window.location.reload()'
+      : 'if(window._dt_deferredPrompt){window._dt_deferredPrompt.prompt();window._dt_deferredPrompt.userChoice.then(function(){document.getElementById(\'pwa-install\').remove();});}';
+    el.innerHTML = '<span style="flex:1">' + msg + '</span><button onclick="' + btnAct + '" style="background:#7C5CFC;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;">' + btnTxt + '</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#64748B;cursor:pointer;font-size:18px;line-height:1;padding:0 4px;">&times;</button>';
+    document.body.appendChild(el);
+    if (!isUpdate && deferredPrompt) window._dt_deferredPrompt = deferredPrompt;
+  }
+})();
 </script>
 </body>
 </html>
